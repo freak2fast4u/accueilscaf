@@ -3,7 +3,8 @@
   "description": "",
   "main": "index.js",
   "authors": [
-    "cedric.lefort <cedric.lefort@cnaf.fr>"
+    "cedric.lefort <cedric.lefort@cnaf.fr>",
+    "Etienne Delavennat <etienne.delavennat@cnaf.fr>"
   ],
   "license": "ISC",
   "homepage": "https://github.com/freak2fast4u/accueilscaf",
