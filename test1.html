@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+       #map {
+        height: 600px;
+        width: 100%;
+       }
+    </style>
+  </head>
+  <body>
+    <form id="form1" name="idform1" onsubmit="initMap(); return false;">
+		Localisation (code postal, ville, addresse) : <input type="text" id="codepostal" /> <input type="button" id="btn1" onclick="initMap()" value="Trouver mes accueils" />
+	</form>
+    <div id="map"></div>
+    <script>
+	var positionDeDepart = {lat: 45.76, lng: 4.84};
+	
+	
+	
+	var xhr = new XMLHttpRequest();		
+		
+      function initMap() {
+        var codepostal = document.getElementById('codepostal').value;
+		if (codepostal && codepostal !== "") {
+			// alert("code postal " + codepostal);
+			// get location her
+			// http://maps.googleapis.com/maps/api/geocode/json?address=69100&key=AIzaSyBCfKC45k8SgvgX4gTGccX5werVIiZy_OE
+			var urlgeocode = "http://maps.googleapis.com/maps/api/geocode/json?address=" + codepostal + "&key=AIzaSyBCfKC45k8SgvgX4gTGccX5werVIiZy_OE";
+			
+			var async = true;
+			xhr.open('GET', urlgeocode, async); // true = async, false = sync
+			if (async) {
+				xhr.addEventListener("readystatechange", processRequest, false);
+			}
+			
+			xhr.send();
+						
+			// alert("request sent");
+					
+			if (!async)	{	
+				alert("expecting immediate anwser");
+				var newposition = extractLocationGmaps(xhr.responseText);		
+				goToPosition(newposition);
+			}
+			
+		} else {
+			// premier chargement
+			var map = new google.maps.Map(document.getElementById('map'), {zoom: 10, center: positionDeDepart });
+			var marker = new google.maps.Marker({ position: positionDeDepart, map: map });
+		}
+      };
+	    
+	  
+	function processRequest(e) {
+		// alert("process reponse" + xhr.readyState + " / " + xhr.status);
+		if (xhr.readyState == 4 && xhr.status == 200) {
+			// alert("got full anwser");
+			var newposition = extractLocationGmaps(xhr.responseText);	
+			goToPosition(newposition);
+		}
+	}
+	  function extractLocationGmaps(jsonText) {
+		var response = JSON.parse(jsonText);
+			// alert("response" + response);
+			var newposition = response.results[0].geometry.location;
+			return newposition;
+	  }
+	  
+	  function goToPosition(newposition) {
+			// alert("new position" + newposition);
+			 var map = new google.maps.Map(document.getElementById('map'), { zoom: 15, center: newposition });
+			var marker = new google.maps.Marker({ position: newposition, map: map });
+	  }
+	  
+	  
+	  
+	  function meLocaliser() {
+	  
+  var map = new google.maps.Map(document.getElementById('map'), {
+    center: positionDeDepart,
+    zoom: 6
+  });
+  var infoWindow = new google.maps.InfoWindow({map: map});
+
+  // Try HTML5 geolocation.
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+
+      infoWindow.setPosition(pos);
+      infoWindow.setContent('Location found.');
+      map.setCenter(pos);
+	  
+	   var marker = new google.maps.Marker({
+          position: positionDeDepart,
+          map: map
+        });
+    }, function() {
+      handleLocationError(true, infoWindow, map.getCenter());
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleLocationError(false, infoWindow, map.getCenter());
+  }
+}
+
+function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+  infoWindow.setPosition(pos);
+  infoWindow.setContent(browserHasGeolocation ?
+                        'Error: The Geolocation service failed.' :
+                        'Error: Your browser doesn\'t support geolocation.');
+}
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCfKC45k8SgvgX4gTGccX5werVIiZy_OE&callback=initMap">
+    </script>
+  </body>
+</html>
