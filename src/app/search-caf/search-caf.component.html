@@ -1,10 +1,26 @@
+
 <form *ngIf="!submitted" class="form-inline" (ngSubmit)="onSubmit()" #registerForm="ngForm">
-	<img src="assets/pictogps.png" width="18" height="18" />Localisation (code postal, ville, addresse) :
-	<input type="text" id="codepostal" class="form-control" size="50" #codePostal />
+<img src="assets/search.png" height="36" width="36" />
+	Adresse, ville, ou code postal :
+	<input type="text" id="codepostal" class="form-control  col-md-6" size="25" #codePostal />
 	<input type="button" class="btn btn-primary" id="btn1" (click)="initMap(codePostal.value)" value="Trouver mes accueils" />	
 		&nbsp;
-	<input type="button" class="btn btn-primary" value="Me localiser" (click)="meLocaliser()" />
-	<br />
+	<input type="button" class="btn btn-primary" id="btnMeLocaliser" value="Me localiser" (click)="meLocaliser()" />
+	
+	  &nbsp;<a data-toggle="collapse" href="#searchForm">+ Plus de critères</a>
+    <br />
+    <div id="searchForm" class="collapse">
+
+<div class="panel panel-primary">
+  <div class="panel-heading">Critères supplémentaires</div>
+  <div class="panel-body">
+     <input type="checkbox" id="checkHandiMoteur" class="form-control" />&nbsp;Accueille les personnes à mobilité réduite
+      &nbsp;<input type="checkbox" id="checkHandiVisuel" class="form-control" />&nbsp;Accueille les déficients visuels
+  </div>
+</div>
+
+    </div>
+
 </form>
 <br />
 

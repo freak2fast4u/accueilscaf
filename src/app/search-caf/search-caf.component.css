@@ -6,3 +6,11 @@
 agm-map {
   height: 300px;
 }
+
+#btnMeLocaliser {
+  background-image: url('/assets/pictogps.png');
+background-position:left;
+background-repeat:no-repeat;
+background-size:16px 16px;
+
+}
