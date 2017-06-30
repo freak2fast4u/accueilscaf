@@ -1,15 +1,355 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Accueilscaf</title>
-  <base href="/">
+<!DOCTYPE html>
+<html>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+<head>
+  <style>
+    #mapContainer {
+      height: 600px;
+      width: 100%;
+    }
+
+    * {
+      font-family: Verdana;
+    }
+
+    #infoWindow {
+      font-family: Tahoma 10pt;
+    }
+
+    #form1 {
+
+    }
+
+  </style>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous">
 </head>
+
 <body>
-  <br/>
-  <app-root></app-root>
+  <form id="form1" name="idform1" onsubmit="relocateMap(); return false;" class="form-inline">
+    <img src="assets/pictogps.png" width="18" height="18" />Adresse, ville, ou code postal :
+    <input type="text" id="locationText" class="form-control" size="25" />
+    <input type="button" class="btn btn-primary" id="btn1" onclick="relocateMap();" value="Rechercher" />&nbsp;
+    <input type="button" class="btn btn-primary" value="Me localiser" onclick="meLocaliser();" />
+    <br />
+  </form>
+  <br />
+
+  <!--  <div id="infosPOI" style="background-color:grey; height:600px;  width:150px;">
+    <div id="closeBtn" onclick="document.getElementById('infosPOI').hidden = true">X</div>
+    <table id="POIdata" class=".table .table-stripped">
+      <tr>
+        <td>Libellé</td>
+        <td id="libellePOI"></td>
+      </tr>
+      <tr>
+        <td>Adresse</td>
+        <td id="adressePOI"></td>
+      </tr>
+      <tr>
+        <td>Horaires</td>
+        <td id="horairesPOI"></td>
+      </tr>
+      <tr>
+        <td>Services disponibles</td>
+        <td id="servicesPOI"></td>
+      </tr>
+    </table>
+  </div>-->
+
+  <div id="mapContainer"></div>
+
+  <script>
+    var positionDeDepart = {
+      lat: 45.76,
+      lng: 4.84
+    };
+    var mainMap;
+    var infoWindow;
+    var myLocationMarker;
+    var xhr = new XMLHttpRequest();
+
+    var poiold = [{
+        id: 1,
+        "libelle": "Permanence CAF Caluire",
+        type: 'CCAS',
+        adresse: '3 rue de la boustifaille 69005 Caluire',
+        horaires: 'Lundi : 8h - 12h // 14h - 16h',
+        services: ['H_AUD', 'DEMRSA', 'MEDADM'],
+        coord: {
+          lat: 45.7675824,
+          lng: 4.8326981
+        }
+      },
+      {
+        id: 2,
+        libelle: 'CAF Lyon Vivier Merle',
+        type: 'CAF',
+        adresse: '4 rue des pignons 69003 Lyon',
+        horaires: 'Lundi : 8h - 12h // 14h - 16h',
+        services: ['H_AUD', 'H_VIS', 'DEMRSA'],
+        coord: {
+          lat: 45.7620738,
+          lng: 4.8513233
+        }
+      },
+      {
+        id: 3,
+        libelle: 'CAF Rhône Lyon 8',
+        type: 'CAF',
+        adresse: '5 rue du huitième 69008 Lyon',
+        horaires: 'Lundi : 8h - 12h // 14h - 16h',
+        services: ['H_AUD', 'H_MOT', 'DEMRSA', 'PERJUR'],
+        coord: {
+          lat: 45.730456,
+          lng: 4.8633293
+        }
+      },
+      {
+        id: 4,
+        libelle: 'CAF Bron',
+        type: 'CAF',
+        adresse: 'Le Bronx',
+        horaires: 'Lundi : 8h30 - 12h30 // 14h30 - 16h30',
+        services: ['DEMRSA', 'MEDADM'],
+        coord: {
+          lat: 45.732543,
+          lng: 4.9093643
+        }
+      },
+      {
+        id: 5,
+        libelle: 'Borne',
+        type: 'BORNE',
+        adresse: 'Boulevard Vivier Merle',
+        horaires: 'H24',
+        services: ['ATT'],
+        coord: {
+          lat: 45.741543,
+          lng: 4.9093643
+        }
+      }
+    ];
+
+
+    xhr.open('GET', "http://172.31.54.181:11546/_REST/ALL/all.php", false);
+    xhr.send();
+    var poi = JSON.parse(xhr.responseText);
+
+    console.log(poi);
+
+    var servicesPOI = new Map();
+    servicesPOI.set('H_AUD', {
+      url: 'assets/Deficients-auditifs-RVB_medium.jpg',
+      libelle: 'Déficients auditifs'
+    });
+    servicesPOI.set('H_AUD_BM', {
+      url: 'assets/Deficients-auditifs-boucle-magnetique-RVB_medium.jpg',
+      libelle: 'Déficients auditifs, boucle magnétique'
+    });
+    servicesPOI.set('H_MOT', {
+      url: 'assets/Deficients-moteur-RVB_medium.jpg',
+      libelle: 'Déficients moteur'
+    });
+    servicesPOI.set('H_VIS', {
+      url: 'assets/Deficients-visuels-RVB_medium.jpg',
+      libelle: 'Déficients visuels'
+    });
+    servicesPOI.set('H_MEN', {
+      url: 'assets/Deficients-mentaux-RVB_medium.jpg',
+      libelle: 'Déficients mentaux'
+    });
+    servicesPOI.set('DEMRSA', {
+      libelle: 'Accueil nouveaux bénéficiaires RSA'
+    });
+    servicesPOI.set('MEDADM', {
+      libelle: 'Médiation administrative'
+    });
+    servicesPOI.set('PERJUR', {
+      libelle: 'Permanence juridique'
+    });
+    servicesPOI.set('ATT', {
+      libelle: 'Délivrance d\'attestations'
+    });
+
+    var colorByTypes = new Map();
+
+
+    var poiByMarkers = new Map();
+
+    function relocateMap() {
+      console.log("relocateMap");
+      var locationText = document.getElementById('locationText').value;
+      if (locationText && locationText !== "") {
+        console.log("recherche");
+        // alert("code postal " + locationText);
+        // get location her
+        // http://maps.googleapis.com/maps/api/geocode/json?address=69100&key=AIzaSyBCfKC45k8SgvgX4gTGccX5werVIiZy_OE
+        var urlgeocode = "https://maps.googleapis.com/maps/api/geocode/json?address=" + locationText +
+          "&key=AIzaSyBCfKC45k8SgvgX4gTGccX5werVIiZy_OE";
+
+        var async = true;
+        xhr.open('GET', urlgeocode, async); // true = async, false = sync
+        if (async) {
+          xhr.addEventListener("readystatechange", processResponse, false);
+        }
+
+        xhr.send();
+
+        // alert("request sent");
+
+        if (!async) {
+          // alert("expecting immediate anwser");
+          var newposition = extractLocationGmaps(xhr.responseText);
+          goToPosition(newposition);
+        }
+
+      } else {
+        console.log("premier chargement");
+        // premier chargement
+        if (!mainMap) {
+          console.log("init map");
+          mainMap = new google.maps.Map(document.getElementById('mapContainer'), {
+            zoom: 13,
+            center: positionDeDepart
+          });
+          infoWindow = new google.maps.InfoWindow({
+            map: mainMap
+          });
+          console.log("poi.length=" + poi.length);
+          for (i = 0; i < poi.length; i++) {
+            var unPoi = poi[i];
+            var unMarker = new google.maps.Marker({
+              position: unPoi.coord,
+              map: mainMap,
+              title: unPoi.libelle,
+              label: unPoi.libelle
+            });
+
+            poiByMarkers.set(unMarker, unPoi);
+
+            unMarker.addListener('click', function (event) {
+              infoWindow.setContent(generatePOIInfoWindowContent(poiByMarkers.get(this)));
+              infoWindow.open(mainMap, this);
+              // document.getElementById('infosPOI').hidden = false;
+            });
+          }
+
+          console.log("fin de création des marker");
+
+        }
+        // var marker = new google.maps.Marker({ position: positionDeDepart, map: map, title:'Ma position' });
+      }
+    };
+
+    function generatePOIInfoWindowContent(poi) {
+      console.log(poi);
+      var content = '<div id="infoWindowLabel"><b>' + poi.libelle + '</b></div>';
+      content += '<div id="infoWindowAdresse"><b>Adresse :</b> ' + poi.adresse + '</div>';
+      content += '<div id="infoWindowHoraires"><b>Horaires : </b>' + poi.horaires + '</div>';
+      if (poi.services && poi.services.length > 0) {
+        content += '<div id="infoWindowServices"><b>Services : </b>';
+        console.log(poi.services);
+        for (var i = 0; i < poi.services.length; i++) {
+          var unService = poi.services[i];
+          console.log(unService);
+          if (servicesPOI.get(unService)) {
+            console.log(servicesPOI.get(unService));
+
+            if (servicesPOI.get(unService).url) {
+              content += '<img src="' + servicesPOI.get(unService).url + '" alt="' + servicesPOI.get(unService).libelle +
+                '" title="' + servicesPOI.get(unService).libelle +
+                '" width="48" height="48" />&nbsp;';
+            } else {
+              content += '<li>' + servicesPOI.get(unService).libelle + '</li>'
+            }
+          }
+
+        }
+        content += '</div>';
+      }
+
+      return content;
+    }
+
+    function processResponse(e) {
+      // alert("process reponse" + xhr.readyState + " / " + xhr.status);
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        // alert("got full anwser");
+        var newposition = extractLocationGmaps(xhr.responseText);
+        goToPosition(newposition);
+      }
+    }
+
+    function extractLocationGmaps(jsonText) {
+      //	alert(jsonText);
+      var response = JSON.parse(jsonText);
+      //	alert(response);
+      // alert("response" + response);
+      var newposition = response.results[0].geometry.location;
+      return newposition;
+    }
+
+
+    function goToPosition(newposition) {
+      // alert("new position" + newposition);
+      // map = new google.maps.Map(document.getElementById('map'), { zoom: 15, center: newposition });
+      // map.setCenter(newposition);
+      // var infoWindow = new google.maps.InfoWindow({map: map});
+      //   infoWindow.setPosition(newposition);
+      mainMap.setCenter(newposition);
+      //      infoWindow.setContent();
+      var marker = new google.maps.Marker({
+        position: newposition,
+        map: mainMap
+      });
+
+    }
+
+    function meLocaliser() {
+
+      // Try HTML5 geolocation.
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+
+          var browserpos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+
+          infoWindow.setPosition(browserpos);
+          infoWindow.setContent('Ma position');
+          mainMap.setCenter(browserpos);
+
+          var marker = new google.maps.Marker({
+            position: browserpos,
+            map: mainMap,
+            title: 'Ma position',
+          });
+          infoWindow.open(mainMap, marker);
+
+        }, function () {
+          handleLocationError(true, infoWindow, mainMap.getCenter());
+        });
+      } else {
+        // Browser doesn't support Geolocation
+        handleLocationError(false, infoWindow, mainMap.getCenter());
+      }
+    }
+
+    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+      infoWindow.setPosition(pos);
+      infoWindow.setContent(browserHasGeolocation ?
+        'Error: La localisation n\'est pas autorisée.' :
+        'Error: Le nagivateur ne gère pas la géolocalisation.');
+    }
+
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCfKC45k8SgvgX4gTGccX5werVIiZy_OE&callback=relocateMap">
+
+
+  </script>
 </body>
+
 </html>
