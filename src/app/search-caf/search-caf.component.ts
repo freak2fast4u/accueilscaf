@@ -53,9 +53,11 @@ export class SearchCafComponent implements OnInit {
         this.lat = pos.lat;
         this.lng = pos.lng;
 
-        this.pois = [
-          new Poi(this.lat, this.lng, 'Position recherchée', 'Location found.'),
-        ];
+        this.geocafservice.getPois()
+          .subscribe(r => {
+            this.pois = r;
+            this.pois.push(new Poi(this.lat, this.lng, 'Position recherchée', 'Location found.'));
+          });
 
       }.bind(this));
     } 
@@ -71,9 +73,11 @@ export class SearchCafComponent implements OnInit {
         this.lng = position.coords.longitude;
         console.log(this.lat + " - " + this.lng);
 
-        this.pois = [
-          new Poi(this.lat, this.lng, 'Ma position', 'Location found.'),
-        ];
+        this.geocafservice.getPois()
+          .subscribe(r => {
+            this.pois = r;
+            this.pois.push(new Poi(this.lat, this.lng, 'Ma position', 'Location found.'));
+          }); 
 
       }.bind(this), function () {
         console.log("Erreur lors de la recuperation de la geolocalisation");
