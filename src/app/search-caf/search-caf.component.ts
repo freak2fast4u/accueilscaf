@@ -9,6 +9,8 @@ import { Poi } from "../model/poi";
 
 import { LocationService } from '../service/location.service';
 
+import { GeocafrestService } from '../service/geocafrest.service';
+
 @Component({
   selector: 'app-search-caf',
   templateUrl: './search-caf.component.html',
@@ -16,7 +18,8 @@ import { LocationService } from '../service/location.service';
 })
 export class SearchCafComponent implements OnInit {
 
-  constructor(public locationService: LocationService)  { }
+  constructor(private locationService: LocationService,
+    private geocafservice: GeocafrestService)  { }
 
   pois = [];
   codePostal: string;
@@ -26,8 +29,10 @@ export class SearchCafComponent implements OnInit {
   zoom: number = 12;
 
   ngOnInit() {
-    this.getPoi()
-      .subscribe(r => this.pois = r);
+    /*this.getPoi()
+      .subscribe(r => this.pois = r);*/
+    this.geocafservice.getPois()
+      .subscribe(r => this.pois = r); 
   }
 
   getPoi(): Observable<Array<Poi>> {

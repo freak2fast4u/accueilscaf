@@ -8,6 +8,8 @@ import { AppComponent } from './app.component';
 import { SearchCafComponent } from './search-caf/search-caf.component';
 import { LocationService } from './service/location.service';
 
+import { GeocafrestService } from './service/geocafrest.service';
+
 import { AgmCoreModule } from '@agm/core';
 
 import { SafeHtmlPipe } from "./safeHtml"
@@ -29,7 +31,9 @@ import { AppSettings } from "./appSettings"
     })
   ],
   providers: [
-    LocationService
+    LocationService,
+    GeocafrestService,
+    { provide: "urlServiceRest", useValue: AppSettings.URL_REST_SERVER }
   ],
   bootstrap: [AppComponent]
 })
