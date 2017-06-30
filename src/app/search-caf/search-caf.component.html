@@ -1,0 +1,17 @@
+<form *ngIf="!submitted" class="form-inline" (ngSubmit)="onSubmit()" #registerForm="ngForm">
+	<img src="assets/pictogps.png" width="18" height="18" />Localisation (code postal, ville, addresse) :
+	<input type="text" id="codepostal" class="form-control" size="50" #codePostal />
+	<input type="button" class="btn btn-primary" id="btn1" (click)="initMap(codePostal.value)" value="Trouver mes accueils" />	
+	&nbsp;
+	<input type="button" class="btn btn-primary" value="Me localiser" (click)="meLocaliser()" />
+	<br />
+</form>
+<br />
+
+<agm-map [latitude]="lat" [longitude]="lng" [zoom]="zoom">
+	<agm-marker *ngFor="let poi of pois; let i = index" [latitude]="poi.lat" [longitude]="poi.lng" [title]="poi.label">
+		<agm-info-window [disableAutoPan]="true">
+			<div [innerHtml]="poi.infoWindow | safeHtml"></div>
+		</agm-info-window>
+	</agm-marker>
+</agm-map>

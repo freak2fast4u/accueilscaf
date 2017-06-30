@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+       #map {
+        height: 600px;
+        width: 100%;
+       }
+	   * {
+			font-family:Verdana;
+	   }
+    </style>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  </head>
+  <body>
+	<br/>
+    <form id="form1" name="idform1" onsubmit="initMap(); return false;" class="form-inline">
+		<img src="./pictogps.png" width="18" height="18" />Localisation (code postal, ville, addresse) : 
+		<input type="text" id="codepostal" class="form-control" size="50" /> 
+		<input type="button" class="btn btn-primary" id="btn1" onclick="initMap();" value="Trouver mes accueils" />
+		&nbsp;
+		<input type="button" class="btn btn-primary" value="Me localiser" onclick="meLocaliser();" />
+		<br />
+	</form>
+	<br />
+    <div id="map"></div>
+    <script>
+		
+	var positionDeDepart = {lat: 45.76, lng: 4.84};
+	var map;
+	var infoWindow;
+	
+	var poi = 
+		[
+		{libelle:'Permanence CAF Caluire', coord:{lat: 45.7675824, lng:4.8326981}}, 
+		{libelle:'CAF Lyon Vivier Merle', coord:{lat: 45.7620738, lng:4.8513233}},
+		{libelle:'CAF Rhône Lyon 8', coord:{lat: 45.730456, lng:4.8633293}},
+		{libelle:'CAF Bron', coord:{lat: 45.732543, lng:4.9093643}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}},
+		//{libelle:'Permanence CAF Caluire', coord:{lat: 45.76, lng: 4.84}}
+		];
+	
+	
+	var xhr = new XMLHttpRequest();		
+		
+    function initMap() {
+        var codepostal = document.getElementById('codepostal').value;
+		if (codepostal && codepostal !== "") {
+			// alert("code postal " + codepostal);
+			// get location her
+			// http://maps.googleapis.com/maps/api/geocode/json?address=69100&key=AIzaSyBCfKC45k8SgvgX4gTGccX5werVIiZy_OE
+			var urlgeocode = "https://maps.googleapis.com/maps/api/geocode/json?address=" + codepostal + "&key=AIzaSyBCfKC45k8SgvgX4gTGccX5werVIiZy_OE";
+			
+			var async = true;
+			xhr.open('GET', urlgeocode, async); // true = async, false = sync
+			if (async) {
+				xhr.addEventListener("readystatechange", processResponse, false);
+			}
+			
+			xhr.send();
+						
+			// alert("request sent");
+					
+			if (!async)	{	
+				// alert("expecting immediate anwser");
+				var newposition = extractLocationGmaps(xhr.responseText);		
+				goToPosition(newposition);
+			}
+			
+		} else {
+			// premier chargement
+			if (!map) {
+				map = new google.maps.Map(document.getElementById('map'), {zoom: 13, center: positionDeDepart });
+				infoWindow = new google.maps.InfoWindow({map: map});
+				for (i=0; i < poi.length; i++) {
+					poi[i].marker2 = new google.maps.Marker({ position: poi[i].coord, map: map, title:poi[i].libelle });
+					poi[i].infowindow = new google.maps.InfoWindow({    content: poi[i].libelle   });
+  
+					poi[i].marker2.addListener('click', function() {
+						poi[i].infowindow.open(map, poi[i].marker2);
+					});
+				}
+			}
+			// var marker = new google.maps.Marker({ position: positionDeDepart, map: map, title:'Ma position' });
+		}
+    };
+	    
+	  
+	function processResponse(e) {
+		// alert("process reponse" + xhr.readyState + " / " + xhr.status);
+		if (xhr.readyState == 4 && xhr.status == 200) {
+			// alert("got full anwser");
+			var newposition = extractLocationGmaps(xhr.responseText);	
+			goToPosition(newposition);
+		}
+	}
+	
+	function extractLocationGmaps(jsonText) {
+	//	alert(jsonText);
+		var response = JSON.parse(jsonText);
+	//	alert(response);
+		// alert("response" + response);
+		var newposition = response.results[0].geometry.location;
+		return newposition;
+	}
+	 
+	  
+	function goToPosition(newposition) {
+			// alert("new position" + newposition);
+			// map = new google.maps.Map(document.getElementById('map'), { zoom: 15, center: newposition });
+			// map.setCenter(newposition);
+			// var infoWindow = new google.maps.InfoWindow({map: map});
+			 infoWindow.setPosition(newposition);
+			 map.setCenter(newposition);
+			 infoWindow.setContent();
+			var marker = new google.maps.Marker({ position: newposition, map: map });
+	}
+	  	  
+	function meLocaliser() {
+ 
+		  // Try HTML5 geolocation.
+		  if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position) {
+			  
+			var browserpos = {
+				lat: position.coords.latitude,
+				lng: position.coords.longitude
+			};
+
+			infoWindow.setPosition(browserpos);
+			infoWindow.setContent('Location found.');
+			map.setCenter(browserpos);
+			  
+			var marker = new google.maps.Marker({
+					position: browserpos,
+					map: map,
+					title:'Ma position'
+				});
+			}, function() {
+			  handleLocationError(true, infoWindow, map.getCenter());
+			});
+		  } else {
+			// Browser doesn't support Geolocation
+			handleLocationError(false, infoWindow, map.getCenter());
+		  }
+	}
+
+	function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+	  infoWindow.setPosition(pos);
+	  infoWindow.setContent(browserHasGeolocation ?
+							'Error: La localisation n\'est pas autorisée.' :
+							'Error: Le nagivateur ne gère pas la géolocalisation.');
+	}
+    </script>
+    <script async defer
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCfKC45k8SgvgX4gTGccX5werVIiZy_OE&callback=initMap">
+    </script>
+  </body>
+</html>
