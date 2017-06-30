@@ -20,8 +20,9 @@ export class SearchCafComponent implements OnInit {
 
   pois = [];
   codePostal: string;
-  lat: number = 45.7675824;
-  lng: number = 4.8326981;
+  // lyon servient (Cnaf site de Lyon)
+  lat: number = 45.760917; 
+  lng: number =  4.853871;
   zoom: number = 12;
 
   ngOnInit() {
