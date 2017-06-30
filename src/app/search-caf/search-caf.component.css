@@ -4,7 +4,7 @@
 }
 
 agm-map {
-  height: 300px;
+  height: 600px;
 }
 
 #btnMeLocaliser {
@@ -13,4 +13,16 @@ background-position:left;
 background-repeat:no-repeat;
 background-size:16px 16px;
 
+}
+
+#tableHoraires th {
+  backgroudn-color:#ccc;
+}
+#tableHoraires {
+  border:1px solid blue;
+  width:600px;
+}
+
+.agm-map-container-inner {
+  height:100%;
 }

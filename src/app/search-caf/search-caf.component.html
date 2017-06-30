@@ -16,6 +16,7 @@
   <div class="panel-body">
      <input type="checkbox" id="checkHandiMoteur" class="form-control" />&nbsp;Accueille les personnes à mobilité réduite
       &nbsp;<input type="checkbox" id="checkHandiVisuel" class="form-control" />&nbsp;Accueille les déficients visuels
+	   &nbsp;<input type="checkbox" id="checkPointOuvert" class="form-control" />&nbsp;Actuellement ouvert
   </div>
 </div>
 
@@ -25,7 +26,7 @@
 <br />
 
 <agm-map [latitude]="lat" [longitude]="lng" [zoom]="zoom">
-	<agm-marker *ngFor="let poi of pois; let i = index" [latitude]="poi.lat" [longitude]="poi.lng" [title]="poi.label">
+	<agm-marker *ngFor="let poi of pois; let i = index" [latitude]="poi.lat" [longitude]="poi.lng" [label]="poi.label">
 		<agm-info-window [disableAutoPan]="true">
 			<div [innerHtml]="poi.infoWindow | safeHtml"></div>
 		</agm-info-window>

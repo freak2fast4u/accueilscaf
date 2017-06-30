@@ -83,11 +83,79 @@ export class GeocafrestService {
   }
 
 
- generatePOIInfoWindowContent(poi:Object): string {
+generatePOIInfoWindowContent(poi:Object): string {
       console.log(poi);
       var content = '<div id="infoWindowLabel"><b>' + poi['libelle'] + '</b></div>';
       content += '<div id="infoWindowAdresse"><b>Adresse :</b> ' + poi['adresse'] + '</div>';
-      content += '<div id="infoWindowHoraires"><b>Horaires : </b>' + poi['horaires'] + '</div>';
+ //     content += '<div id="infoWindowHoraires"><b>Horaires : </b>' + poi['horaires'] + '</div>';
+
+      content += '<div id="infoWindowHoraires"><b>Horaires : </b>';
+      content += '<table id="tableHoraires" border="1"><tr><th>Jour</th><th>Horaires</th></tr>';
+        
+      content += '<tr><td>Lundi</td><td>';
+      if (poi['Lundi']) {
+        content += poi['Lundi']['matdebut'];
+        content += ' - ';
+        content += poi['Lundi']['matfin'];
+        content += ' <br /> ';
+        content += poi['Lundi']['apdebut'];
+        content += ' - ';
+        content += poi['Lundi']['apfin'];
+      }
+      content += '</td></tr>';
+
+       content += '<tr><td>Mardi</td><td>';
+      if (poi['Mardi']) {
+        content += poi['Mardi']['matdebut'];
+        content += ' - ';
+        content += poi['Mardi']['matfin'];
+        content += ' <br /> ';
+        content += poi['Mardi']['apdebut'];
+        content += ' - ';
+        content += poi['Mardi']['apfin'];
+      }
+      content += '</td></tr>';
+
+       content += '<tr><td>Mercredi</td><td>';
+      if (poi['Mercredi']) {
+        content += poi['Mercredi']['matdebut'];
+        content += ' - ';
+        content += poi['Mercredi']['matfin'];
+        content += ' <br /> ';
+        content += poi['Mercredi']['apdebut'];
+        content += ' - ';
+        content += poi['Mercredi']['apfin'];
+      }
+      content += '</td></tr>';
+
+       content += '<tr><td>Jeudi</td><td>';
+      if (poi['Jeudi']) {
+        content += poi['Jeudi']['matdebut'];
+        content += ' - ';
+        content += poi['Jeudi']['matfin'];
+        content += ' <br /> ';
+        content += poi['Jeudi']['apdebut'];
+        content += ' - ';
+        content += poi['Jeudi']['apfin'];
+      }
+      content += '</td></tr>';
+
+       content += '<tr><td>Vendredi</td><td>';
+      if (poi['Vendredi']) {
+        content += poi['Vendredi']['matdebut'];
+        content += ' - ';
+        content += poi['Vendredi']['matfin'];
+        content += ' <br /> ';
+        content += poi['Vendredi']['apdebut'];
+        content += ' - ';
+        content += poi['Vendredi']['apfin'];
+      }
+      content += '</td></tr>';
+
+
+      content += '</table>';
+      content += '</div>';
+        
       if (poi['services'] && poi['services'].length > 0) {
         content += '<div id="infoWindowServices"><b>Services : </b>';
         console.log(poi['services']);
@@ -107,10 +175,15 @@ export class GeocafrestService {
           }
 
         }
+              
+  
+       
         content += '</div>';
       }
 
       return content;
-    }
+
+      }
+
 
 }
